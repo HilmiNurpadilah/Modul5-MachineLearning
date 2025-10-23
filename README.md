@@ -125,7 +125,7 @@ Response:
 - Simplified web form hanya menampilkan 4 features utama, sisanya diisi default
 
 ## 👨‍💻 Developer
-TA-05 - Machine Learning Practicum
+Hilmi - TA-05 - Machine Learning Practicum
 
 ---
 **Dataset source**: UCI Machine Learning Repository
