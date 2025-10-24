@@ -2,11 +2,48 @@ from flask import Flask, request, jsonify, render_template
 import joblib
 import pandas as pd
 import numpy as np
+import os
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
 
 app = Flask(__name__)
 
-# Load model
-model = joblib.load('decision_tree_mushroom.pkl')
+# Load model dengan error handling
+def load_or_train_model():
+    try:
+        # Coba load model yang ada
+        model = joblib.load('decision_tree_mushroom.pkl')
+        print("✓ Model loaded successfully")
+        return model
+    except Exception as e:
+        print(f"⚠️ Error loading model: {e}")
+        print("🔄 Re-training model...")
+        
+        # Re-train model jika load gagal
+        df = pd.read_csv('mushrooms.csv')
+        X = df.drop(columns=['class'])
+        y = df['class']
+        X_encoded = pd.get_dummies(X, drop_first=False)
+        
+        # Save feature names
+        with open('feature_names.txt', 'w') as f:
+            for col in X_encoded.columns:
+                f.write(f"{col}\n")
+        
+        # Train model
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_encoded, y, test_size=0.25, random_state=42, stratify=y
+        )
+        
+        model = DecisionTreeClassifier(random_state=42)
+        model.fit(X_train, y_train)
+        
+        # Save model
+        joblib.dump(model, 'decision_tree_mushroom.pkl')
+        print("✓ Model re-trained and saved")
+        return model
+
+model = load_or_train_model()
 
 # Daftar fitur setelah encoding (urutan penting!)
 with open('feature_names.txt', 'r') as f:
